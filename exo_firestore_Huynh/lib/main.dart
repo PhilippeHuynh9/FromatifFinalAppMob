@@ -141,3 +141,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+//Qu'est-ce que le contrôle d'accès, et comment est-il mis en place dans le TP3 du cours d'applications mobiles avancées?: Le contrôle d’accès sert à limiter l’accès aux
+// fonctionnalités ou aux données d’une application selon l’utilisateur connecté. Dans le TP3, il est mis en place à l’aide de l’authentification Firebase : l’utilisateur doit être
+// connecté (Google ou courriel/mot de passe), et l’application vérifie son état de connexion pour autoriser ou bloquer l’accès à certaines pages et actions.
