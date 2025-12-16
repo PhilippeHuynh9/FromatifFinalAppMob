@@ -4,9 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
-  // ------------------------------
-  // ÉTAPE 1 : INITIALISATION FIREBASE
-  // ------------------------------
+
+  // Initialise Firebase
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -15,9 +14,6 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-// ------------------------------
-// APPLICATION PRINCIPALE
-// ------------------------------
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -31,26 +27,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ------------------------------
-// PAGE EXAMEN FIRESTORE
-// ------------------------------
 class ExamenFirestorePage extends StatefulWidget {
   const ExamenFirestorePage({super.key});
 
   @override
   State<ExamenFirestorePage> createState() => _ExamenFirestorePageState();
 }
-
 class _ExamenFirestorePageState extends State<ExamenFirestorePage> {
-
-  // ------------------------------
-  // ÉTAPE 2 : CHAMP TEXTE
-  // ------------------------------
+  // Champ texte pour le contenu
   final TextEditingController contenuCtrl = TextEditingController();
 
-  // ------------------------------
-  // ÉTAPE 3 : FONCTION D’AJOUT FIRESTORE
-  // ------------------------------
+
+  // Ajouter Firestore
   Future<void> _ajouterDocument() async {
     final contenu = contenuCtrl.text.trim();
 
@@ -59,82 +47,65 @@ class _ExamenFirestorePageState extends State<ExamenFirestorePage> {
         const SnackBar(content: Text("Veuillez entrer un contenu.")),
       );
       return;
+
     }
 
     try {
-      // ------------------------------
-      // ÉTAPE 4 : RÉFÉRENCE FIRESTORE PRÉCISE
+      // Route pour Firestore
       // Examen > Final2025 > Eleve > ID auto
-      // ------------------------------
       await FirebaseFirestore.instance
           .collection("Examen")
           .doc("Final2025")
           .collection("Eleve")
           //.doc()
           .add({
-        // ------------------------------
-        // ÉTAPE 5 : DONNÉES DU DOCUMENT
-        // ------------------------------
+
+        // Mes donnees
         "contenu": contenu,                 // String
-        "numeroDePoste": 42,                // int (hardcodé)
-        "SurUneTablehaute": true,           // bool (hardcodé)
+        "numeroDePoste": 42,            // int
+        "SurUneTablehaute": true,    // bool
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Document ajouté avec succès.")),
+        const SnackBar(content: Text("Votre document a été ajouté avec succès.")),
       );
 
       contenuCtrl.clear();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Erreur lors de l'ajout du document."),
+          content: Text("Une erreur est survenue lors de l’enregistrement."),
         ),
       );
     }
   }
 
-  // ------------------------------
-  // INTERFACE UTILISATEUR
-  // ------------------------------
+
+  // Mon interface
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Examen Firestore")),
+      appBar: AppBar(title: const Text("Examen Question 1 Firestore")),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
 
-            // ------------------------------
-            // ÉTAPE 6 : DEUX BOUTONS AU CENTRE
-            // ------------------------------
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: _ajouterDocument,
-                  child: const Text("Ajouter"),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: _ajouterDocument,
-                  child: const Text("Envoyer"),
-                ),
-              ],
+            // Le bouton envoyer
+          ElevatedButton(
+              onPressed: _ajouterDocument,
+              child: const Text("Envoyer"),
             ),
 
-            const SizedBox(height: 20),
 
-            // ------------------------------
-            // ÉTAPE 7 : CHAMP TEXTE SOUS LES BOUTONS
-            // ------------------------------
+            const SizedBox(height: 15),
+            // TextField pour mon texte a envoyer
             SizedBox(
-              width: 300,
+              width: 250,
               child: TextField(
                 controller: contenuCtrl,
                 decoration: const InputDecoration(
-                  labelText: "Contenu à sauvegarder",
+                  labelText: "Votre contenu",
                   border: OutlineInputBorder(),
                 ),
               ),
