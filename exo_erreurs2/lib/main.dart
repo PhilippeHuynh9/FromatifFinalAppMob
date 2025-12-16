@@ -119,4 +119,8 @@ class _NombreMysterePageState extends State<NombreMysterePage> {
     );
   }
 }
-
+ //Qu’est-ce qu’un cookie ?
+//
+// Un cookie est fichier dont le site web ou l’application que nous visitons enregistre les donnees de l’utilisateur. Il sert principalement à mémoriser ou bien reconnaître si l’utilisateur est nouveau ou non.
+// Dans notre cours, on a vu les cookies dans notre tp2 et tp3 surtout lors de la connexion. Par exemple, quand on fait un signin ou un signup, le serveur garde les informations de l’utilisateur. Plus récemment,
+// dans le TP3, le cookie est utilisé lors de l’authentification. Lorsqu'on se connecte a notre application, le serveur crée un cookie qui permet de vérifier l’identité de l’utilisateur.
