@@ -1,20 +1,17 @@
-// ------------------------------
-// IMPORTATIONS
-// ------------------------------
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:flutter/material.dart';
 
-// ------------------------------
-// FONCTION PRINCIPALE
-// Initialise Firebase
-// ------------------------------
 Future<void> main() async {
+  // ------------------------------
+  // ÉTAPE 1 : INITIALISATION FIREBASE
+  // ------------------------------
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const MyApp());
 }
 
@@ -27,173 +24,120 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Examen Firestore Produits',
+      title: 'Examen Firestore',
       theme: ThemeData(useMaterial3: true),
-      home: const MyHomePage(),
+      home: const ExamenFirestorePage(),
     );
   }
 }
 
 // ------------------------------
-// PAGE PRINCIPALE (STATEFUL)
+// PAGE EXAMEN FIRESTORE
 // ------------------------------
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class ExamenFirestorePage extends StatefulWidget {
+  const ExamenFirestorePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<ExamenFirestorePage> createState() => _ExamenFirestorePageState();
 }
 
-// ------------------------------
-// ÉTAT DE LA PAGE
-// ------------------------------
-class _MyHomePageState extends State<MyHomePage> {
+class _ExamenFirestorePageState extends State<ExamenFirestorePage> {
 
   // ------------------------------
-  // ÉTAPE 1 : RÉCUPÉRER LA SAISIE UTILISATEUR
+  // ÉTAPE 2 : CHAMP TEXTE
   // ------------------------------
-  final TextEditingController produitController = TextEditingController();
+  final TextEditingController contenuCtrl = TextEditingController();
 
   // ------------------------------
-  // VARIABLES D'AFFICHAGE
+  // ÉTAPE 3 : FONCTION D’AJOUT FIRESTORE
   // ------------------------------
-  String prix = '';
-  String etat = '';
-  String message = '';
+  Future<void> _ajouterDocument() async {
+    final contenu = contenuCtrl.text.trim();
 
-  // ------------------------------
-  // ÉTAPE 2 : RECHERCHER LE PRODUIT
-  // Utilise where() car l'ID est inconnu
-  // ------------------------------
-  QueryDocumentSnapshot? produitTrouve;
-//À l’appui sur « Rechercher » : Rechercher dans la collection produits
-  void _rechercher() async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('produits')                 // Collection
-          .where('nom', isEqualTo: produitController.text) // Condition
-          .get();                                 // Lecture
-//Si trouvé : afficher le prix
-      if (query.docs.isNotEmpty) {
-        produitTrouve = query.docs.first;
-//afficher l’état (Disponible ou Indisponible)
-        setState(() {
-          prix = produitTrouve!['prix'].toString();
-          etat = produitTrouve!['disponible']
-              ? 'Disponible'
-              : 'Indisponible';
-          message = '';
-        });
-
-        //Sinon : afficher « Produit introuvable »
-      } else {
-        setState(() {
-          prix = '';
-          etat = '';
-          message = 'Produit introuvable';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        message = 'Erreur lors de la recherche';
-      });
+    if (contenu.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez entrer un contenu.")),
+      );
+      return;
     }
-  }
-
-  // ------------------------------
-  // ÉTAPE 3 : METTRE À JOUR LE PRODUIT
-  // ------------------------------
-//À l’appui sur « Marquer disponible » : Mettre le champ disponible à true
-  void _marquerDisponible() async {
-
-    if (produitTrouve == null) return;
 
     try {
+      // ------------------------------
+      // ÉTAPE 4 : RÉFÉRENCE FIRESTORE PRÉCISE
+      // Examen > Final2025 > Eleve > ID auto
+      // ------------------------------
       await FirebaseFirestore.instance
-          .collection('produits')          // Collection
-          .doc(produitTrouve!.id)          // ID du document trouvé
-          .update({'disponible': true});   // Mettre à jour le document trouvé
+          .collection("Examen")
+          .doc("Final2025")
+          .collection("Eleve")
+          //.doc()
+          .add({
+        // ------------------------------
+        // ÉTAPE 5 : DONNÉES DU DOCUMENT
+        // ------------------------------
+        "contenu": contenu,                 // String
+        "numeroDePoste": 42,                // int (hardcodé)
+        "SurUneTablehaute": true,           // bool (hardcodé)
+      });
 
-      setState(() {
-        etat = 'Disponible';
-        message = 'Produit mis à jour';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Document ajouté avec succès.")),
+      );
+
+      contenuCtrl.clear();
     } catch (e) {
-      setState(() {
-        message = 'Erreur lors de la mise à jour';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Erreur lors de l'ajout du document."),
+        ),
+      );
     }
   }
 
   // ------------------------------
-  // ÉTAPE 4 : CONSTRUIRE L'INTERFACE
+  // INTERFACE UTILISATEUR
   // ------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Examen Firestore – Produits'),
-      ),
+      appBar: AppBar(title: const Text("Examen Firestore")),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
 
             // ------------------------------
-            // CHAMP DE SAISIE DU NOM DU PRODUIT
+            // ÉTAPE 6 : DEUX BOUTONS AU CENTRE
             // ------------------------------
-            //Un TextField pour entrer le nom du produit
-            SizedBox(
-              width: 280,
-              child: TextField(
-                controller: produitController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom du produit',
-                  border: OutlineInputBorder(),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: _ajouterDocument,
+                  child: const Text("Ajouter"),
                 ),
-              ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: _ajouterDocument,
+                  child: const Text("Envoyer"),
+                ),
+              ],
             ),
 
             const SizedBox(height: 20),
 
             // ------------------------------
-            // BOUTONS D'ACTION
+            // ÉTAPE 7 : CHAMP TEXTE SOUS LES BOUTONS
             // ------------------------------
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                //Un bouton « Rechercher »
-                ElevatedButton(
-                  onPressed: _rechercher,
-                  child: const Text('Rechercher'),
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: contenuCtrl,
+                decoration: const InputDecoration(
+                  labelText: "Contenu à sauvegarder",
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(width: 20),
-                //Un bouton « Marquer disponible »
-                ElevatedButton(
-                  onPressed: _marquerDisponible,
-                  child: const Text('Marquer disponible'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // ------------------------------
-            // AFFICHAGE DES DONNÉES
-            // ------------------------------
-            //Deux Text pour afficher le prix et l’état
-            Text('Prix : $prix \$'),
-            const SizedBox(height: 8),
-            Text('État : $etat'),
-
-            const SizedBox(height: 16),
-
-            // ------------------------------
-            // MESSAGE D'ERREUR / CONFIRMATION
-            // ------------------------------
-            Text(
-              message,
-              style: const TextStyle(color: Colors.red),
+              ),
             ),
           ],
         ),
@@ -201,6 +145,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-// Pourquoi utiliser where() au lieu de doc() dans ce cas ?: On utilise where() parce que l’ID du document n’est pas connu.
-// La recherche se fait à partir d’un champ du document (ex. nom) et non de son identifiant.
-// La méthode doc() ne peut être utilisée que lorsque l’ID du document est connu à l’avance.
