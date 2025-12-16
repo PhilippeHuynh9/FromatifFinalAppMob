@@ -29,19 +29,14 @@ class NombreMysterePage extends StatefulWidget {
 
 class _NombreMysterePageState extends State<NombreMysterePage> {
 
-  // ------------------------------
-  // ÉTAPE 1 : Champ de saisie
-  // ------------------------------
+  // Champ Texte
   final TextEditingController nombreCtrl = TextEditingController();
 
 
-  // ------------------------------
-  // ÉTAPE 2 : Appel du Web Service
-  // ------------------------------
+  // Appel le Web Service
   Future<void> _envoyerNombre() async {
     final valeur = nombreCtrl.text.trim();
-
-    // Vérification si le champ est vide
+    // Si le champ est vide
     if (valeur.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Veuillez entrer un nombre.")),
@@ -49,23 +44,15 @@ class _NombreMysterePageState extends State<NombreMysterePage> {
       return;
     }
 
-    // ------------------------------
-    // ÉTAPE 3 : URL dynamique
-    // {nombre} remplacé par le champ texte
-    // ------------------------------
+    // URL remplacé {nombre} par le champ texte
     final url = Uri.parse(
       "http://10.0.2.3:8888/Examen2020/$valeur",
     );
-
     try {
-      // ------------------------------
-      // ÉTAPE 4 : Requête HTTP GET
-      // ------------------------------
+      // Requête HTTP GET
       final response = await http.get(url);
 
-      // ------------------------------
-      // ÉTAPE 5 : SUCCÈS (200)
-      // ------------------------------
+      //  Si Succes (200)
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.body)),
@@ -74,7 +61,7 @@ class _NombreMysterePageState extends State<NombreMysterePage> {
       }
 
       // ------------------------------
-      // ÉTAPE 6 : ERREURS (400 ou 404)
+      // Si Erreurs clients (400, 404)
       // ------------------------------
       if (response.statusCode == 400 || response.statusCode == 404) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -82,18 +69,12 @@ class _NombreMysterePageState extends State<NombreMysterePage> {
         );
         return;
       }
-
-      // ------------------------------
-      // AUTRES ERREURS
-      // ------------------------------
+      // autres erreurs serveur
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur serveur (${response.statusCode})")),
       );
     }
-
-    // ------------------------------
-    // ÉTAPE 7 : ERREUR DE COMMUNICATION
-    // ------------------------------
+    // Si une erreur de communication avec le serveur
     catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -102,8 +83,7 @@ class _NombreMysterePageState extends State<NombreMysterePage> {
       );
     }
   }
-
-
+  //Mon interface
   @override
   Widget build(BuildContext context) {
     return Scaffold(
